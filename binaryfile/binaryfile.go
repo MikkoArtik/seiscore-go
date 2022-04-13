@@ -13,8 +13,6 @@ import (
 )
 
 
-
-
 type FileHeader struct {
 	channelsCount uint16
 	frequency uint16
@@ -98,13 +96,6 @@ func isBinaryFilePath(path string) bool {
 }
 
 
-// func readBinary(file *os.File, bytesCount int, skippingBytes int) []byte {
-// 	bytes := make([]byte, bytesCount)
-// 	file.ReadAt(bytes, int64(skippingBytes))
-// 	return bytes
-// }
-
-
 func getDatetimeStartBaikal7(timeBegin uint64) time.Time {
 	seconds := timeBegin / 256000000
 	nanoseconds := int(float64(timeBegin % 256000000) * math.Pow(10, 9))
@@ -114,148 +105,6 @@ func getDatetimeStartBaikal7(timeBegin uint64) time.Time {
 	datetimeStart = datetimeStart.Add(time.Nanosecond * time.Duration(nanoseconds))
 	return datetimeStart
 }
-
-
-// type CharType struct {
-// 	filePointer *os.File
-// 	skippingBytes int
-// 	elementsCount int
-// }
-
-// func (dataType CharType) byteSize() int {
-// 	return 1
-// }
-
-// func (dataType CharType) convert() string {
-// 	bytesVal := readBinary(
-// 		dataType.filePointer, dataType.byteSize() * dataType.elementsCount, 
-// 		dataType.skippingBytes)
-// 	return string(bytesVal)
-// }
-
-
-// type UnsignedShortType struct {
-// 	filePointer *os.File
-// 	skippingBytes int
-// 	elementsCount int	
-// }
-
-// func (dataType UnsignedShortType) byteSize() int {
-// 	return 2
-// }
-
-// func (dataType UnsignedShortType) getBytes() []byte {
-// 	return readBinary(
-// 		dataType.filePointer, dataType.byteSize() * dataType.elementsCount, 
-// 		dataType.skippingBytes)
-// }
-
-// func (dataType UnsignedShortType) convertToNumber() uint16 {
-// 	buffer := bytes.NewBuffer(dataType.getBytes())
-// 	var result uint16
-// 	binary.Read(buffer, binary.LittleEndian, &result)
-// 	return result
-// }
-
-// func (dataType UnsignedShortType) convertToArray() []uint16 {
-// 	buffer := bytes.NewBuffer(dataType.getBytes())
-// 	result := make([]uint16, dataType.elementsCount)
-// 	binary.Read(buffer, binary.LittleEndian, &result)
-// 	return result
-// }
-
-
-// type UnsignedIntType struct {
-// 	filePointer *os.File
-// 	skippingBytes int
-// 	elementsCount int
-// }
-
-// func (dataType UnsignedIntType) byteSize() int {
-// 	return 4
-// }
-
-// func (dataType UnsignedIntType) getBytes() []byte {
-// 	return readBinary(
-// 		dataType.filePointer, dataType.byteSize() * dataType.elementsCount, 
-// 		dataType.skippingBytes)
-// }
-
-// func (dataType UnsignedIntType) convertToNumber() int32 {
-// 	buffer := bytes.NewBuffer(dataType.getBytes())
-// 	var result int32
-// 	binary.Read(buffer, binary.LittleEndian, &result)
-// 	return result
-// }
-
-// func (dataType UnsignedIntType) convertToArray() []int32 {
-// 	buffer := bytes.NewBuffer(dataType.getBytes())
-// 	result := make([]int32, dataType.elementsCount)
-// 	binary.Read(buffer, binary.LittleEndian, &result)
-// 	return result
-// }
-
-
-// type DoubleType struct {
-// 	filePointer *os.File
-// 	skippingBytes int
-// 	elementsCount int
-// }
-
-// func (dataType DoubleType) byteSize() int {
-// 	return 8
-// }
-
-// func (dataType DoubleType) getBytes() []byte {
-// 	return readBinary(
-// 		dataType.filePointer, dataType.byteSize() * dataType.elementsCount, 
-// 		dataType.skippingBytes)
-// }
-
-// func (dataType DoubleType) convertToNumber() float64 {
-// 	buffer := bytes.NewBuffer(dataType.getBytes())
-// 	var result float64
-// 	binary.Read(buffer, binary.LittleEndian, &result)
-// 	return result
-// }
-
-// func (dataType DoubleType) convertToArray() []float64 {
-// 	buffer := bytes.NewBuffer(dataType.getBytes())
-// 	result := make([]float64, dataType.elementsCount)
-// 	binary.Read(buffer, binary.LittleEndian, &result)
-// 	return result
-// }
-
-
-// type LongType struct {
-// 	filePointer *os.File
-// 	skippingBytes int
-// 	elementsCount int
-// }
-
-// func (dataType LongType) byteSize() int {
-// 	return 8
-// }
-
-// func (dataType LongType) getBytes() []byte {
-// 	return readBinary(
-// 		dataType.filePointer, dataType.byteSize() * dataType.elementsCount, 
-// 		dataType.skippingBytes)
-// }
-
-// func (dataType LongType) convertToNumber() uint64 {
-// 	buffer := bytes.NewBuffer(dataType.getBytes())
-// 	var result uint64
-// 	binary.Read(buffer, binary.LittleEndian, &result)
-// 	return result
-// }
-
-// func (dataType LongType) convertToArray() []uint64 {
-// 	buffer := bytes.NewBuffer(dataType.getBytes())
-// 	result := make([]uint64, dataType.elementsCount)
-// 	binary.Read(buffer, binary.LittleEndian, &result)
-// 	return result
-// }
 
 
 func ReadBaikal7Header(path string) FileHeader {
@@ -351,15 +200,74 @@ func resampling(signal []int, resample_parameter int) []int {
 
 
 type BinaryFile struct {
-	path string
-	resampleFrequency int
-	isUseAvgValues bool
+	Path string
+	ResampleFrequency uint16
+	IsUseAvgValues bool
 }
 
-func (binFile BinaryFile) fileExtention() (string, error) {
-	if len(binFile.path) == 0 {
+func (binFile BinaryFile) fileExtension() (string, error) {
+	if len(binFile.Path) == 0 {
 		return "", errors.New("Empty file path")
 	}
-	splitPath := strings.Split(binFile.path, ".")
+	splitPath := strings.Split(binFile.Path, ".")
 	return splitPath[len(splitPath) - 1], nil
 }
+
+func (binFile BinaryFile) formatType() (string, error) {
+	currentExtension, err := binFile.fileExtension()
+	if err != nil {
+		return "", err
+	}
+
+	for fileFormat, fileExtension := range BINARY_FILE_FORMATS {
+		if currentExtension == fileExtension {
+			return fileFormat, nil
+		}
+	}
+	return "", errors.New("Invalid file format")
+}
+
+func (binFile BinaryFile) fileHeader() (FileHeader, error) {
+	formatType, err := binFile.formatType()
+	if err != nil {
+		return FileHeader{}, err
+	}
+
+	switch formatType {
+	case BAIKAL7_FMT:
+		return ReadBaikal7Header(binFile.Path), nil
+	case BAIKAL8_FMT:
+		return ReadBaikal8Header(binFile.Path), nil
+	case SIGMA_FMT:
+		return ReadSigmaHeader(binFile.Path), nil
+	default:
+		return FileHeader{}, errors.New("Unknown format type")
+	}
+}
+
+func (binFile BinaryFile) originFrequency() (uint16, error) {
+	fileHeader, err := binFile.fileHeader()
+	if err != nil {
+		return 0, errors.New("Bad file header format")
+	}
+	return fileHeader.frequency, nil
+}
+
+func (binFile BinaryFile) GetResampleFrequency() (uint16, error) {
+	originFrequency, err := binFile.originFrequency()
+	if err != nil {
+		return 0, err
+	}
+
+	switch freq := binFile.ResampleFrequency; {
+	case freq < 0:
+		return 0, errors.New("Invalid resample frequency value")
+	case freq == 0:
+		return originFrequency, nil
+	case originFrequency % freq == 0:
+		return freq, nil
+	default:
+		return 0, errors.New("Invalid resample frequency value")
+	}
+}
+
