@@ -112,10 +112,19 @@ func getDatetimeStartBaikal7(timeBegin uint64) time.Time {
 }
 
 
+type BadHeaderData struct {
+	message string
+}
+
+func (customError BadHeaderData) Error() string {
+	return fmt.Sprintf("BadHeaderData: %s", customError.message)
+}
+
+
 func getDatetimeStartSigma(dateNum int32, timeNum int32) (time.Time, error) {
 	dateLine := strconv.FormatInt(int64(dateNum), 10)
 	if len(dateLine) != 6 {
-		return time.Time{}, errors.New("Invalid date in header")
+		return time.Time{}, BadHeaderData{"Invalid date in header"}
 	}
 
 	year, _ := strconv.ParseInt(dateLine[:2], 10, 64)
@@ -123,7 +132,7 @@ func getDatetimeStartSigma(dateNum int32, timeNum int32) (time.Time, error) {
 
 	month, _ := strconv.ParseInt(dateLine[2:4], 10, 64)
 	if month < 1 || month > 12 {
-		return time.Time{}, errors.New("Invalid month in header")
+		return time.Time{}, BadHeaderData{"Invalid month in header"}
 	}
 
 	day, _ := strconv.ParseInt(dateLine[4:], 10, 64)
@@ -131,23 +140,23 @@ func getDatetimeStartSigma(dateNum int32, timeNum int32) (time.Time, error) {
 	firstMonthDay := time.Date(int(year), time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 	lastMonthDay := firstMonthDay.AddDate(0, 1, 0).Add(-time.Nanosecond)
 	if day < 1 || int(day) > lastMonthDay.Day() {
-		return time.Time{}, errors.New("Invalid day in header")
+		return time.Time{}, BadHeaderData{"Invalid day in header"}
 	}
 
 	timeLine := fmt.Sprintf("%06d", int64(timeNum))
 	hours, _ := strconv.ParseInt(timeLine[:2], 10, 64)
 	if hours > 23 {
-		return time.Time{}, errors.New("Invalid hours in header")
+		return time.Time{}, BadHeaderData{"Invalid hours in header"}
 	}
 
 	minutes, _ := strconv.ParseInt(timeLine[2:4], 10, 64)
 	if minutes > 59 {
-		return time.Time{}, errors.New("Invalid minutes in header")
+		return time.Time{}, BadHeaderData{"Invalid minutes in header"}
 	}
 
 	seconds, _ := strconv.ParseInt(timeLine[4:], 10, 64)
 	if seconds > 59 {
-		return time.Time{}, errors.New("Invalid seconds in header")
+		return time.Time{}, BadHeaderData{"Invalid seconds in header"}
 	}
 
 	datetimeStart := time.Date(
@@ -159,17 +168,17 @@ func getDatetimeStartSigma(dateNum int32, timeNum int32) (time.Time, error) {
 
 func getCoordinatesSigma(longitudeLine string, latitudeLine string) (Coordinate, error) {
 	if len(longitudeLine) != 9 {
-		return Coordinate{}, errors.New("Invalid longitude in header")
+		return Coordinate{}, BadHeaderData{"Invalid longitude in header"}
 	}
 
 	longitudeSymbol := longitudeLine[len(longitudeLine) - 1]
 	if longitudeSymbol != 'E' && longitudeSymbol != 'W' {
-		return Coordinate{}, errors.New("Invalid longitude in header")
+		return Coordinate{}, BadHeaderData{"Invalid longitude in header"}
 	}
 
 	latitudeSymbol := latitudeLine[len(latitudeLine) - 1]
 	if latitudeSymbol != 'N' && latitudeSymbol != 'S' {
-		return Coordinate{}, errors.New("Invalid latitude in header")
+		return Coordinate{}, BadHeaderData{"Invalid latitude in header"}
 	}
 
 	integerPart, _ := strconv.ParseFloat(longitudeLine[:3], 64)
