@@ -157,6 +157,38 @@ func getDatetimeStartSigma(dateNum int32, timeNum int32) (time.Time, error) {
 }
 
 
+func getCoordinatesSigma(longitudeLine string, latitudeLine string) (Coordinate, error) {
+	if len(longitudeLine) != 9 {
+		return Coordinate{}, errors.New("Invalid longitude in header")
+	}
+
+	longitudeSymbol := longitudeLine[len(longitudeLine) - 1]
+	if longitudeSymbol != 'E' && longitudeSymbol != 'W' {
+		return Coordinate{}, errors.New("Invalid longitude in header")
+	}
+
+	latitudeSymbol := latitudeLine[len(latitudeLine) - 1]
+	if latitudeSymbol != 'N' && latitudeSymbol != 'S' {
+		return Coordinate{}, errors.New("Invalid latitude in header")
+	}
+
+	integerPart, _ := strconv.ParseFloat(longitudeLine[:3], 64)
+	decimalPart, _ := strconv.ParseFloat(longitudeLine[3:len(longitudeLine) - 1], 64)
+	longitude := truncate(integerPart + decimalPart / 60, 5)
+	if longitudeSymbol == 'W' {
+		longitude = -longitude
+	}
+
+	integerPart, _ = strconv.ParseFloat(latitudeLine[:2], 64)
+	decimalPart, _ = strconv.ParseFloat(latitudeLine[2:len(latitudeLine) - 1], 64)
+	latitude := truncate(integerPart + decimalPart / 60, 5)
+	if latitudeSymbol == 'S' {
+		latitude = -latitude
+	}
+	return Coordinate{longitude, latitude}, nil
+}
+
+
 func ReadBaikal7Header(path string) FileHeader {
 	file, _ := os.Open(path)
 	defer file.Close()
@@ -218,7 +250,7 @@ func ReadSigmaHeader(path string) (FileHeader, error) {
 	decimalPart, _ = strconv.ParseFloat(latitudeSrc[2:len(latitudeSrc) - 1], 64)
 	latitude := truncate(integerPart + decimalPart / 60, 5)
 
-	return FileHeader{channelsCount, frequency, datetimeStart, longitude, latitude}, nil
+	return FileHeader{channelsCount, frequency, datetimeStart, Coordinate{longitude, latitude}}, nil
 }
 
 
