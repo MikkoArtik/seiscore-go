@@ -191,7 +191,7 @@ func ReadBaikal8Header(path string) FileHeader {
 }
 
 
-func ReadSigmaHeader(path string) FileHeader {
+func ReadSigmaHeader(path string) (FileHeader, error) {
 	file, _ := os.Open(path)
 	defer file.Close()
 
@@ -200,22 +200,10 @@ func ReadSigmaHeader(path string) FileHeader {
 	latitudeSrc, longitudeSrc := CharType{file, 40, 8}.convert(), CharType{file, 48, 9}.convert()
 
 	datetimeSrc := UnsignedIntType{file, 60, 2}.convertToArray()
-	dateLine := strconv.FormatInt(int64(datetimeSrc[0]), 10)
-	timeLine := fmt.Sprintf("%06d", int64(datetimeSrc[1]))
-
-	year, _ := strconv.ParseInt(dateLine[:2], 10, 64)
-	year += 2000
-
-	month, _ := strconv.ParseInt(dateLine[2:4], 10, 64)
-	day, _ := strconv.ParseInt(dateLine[4:], 10, 64)
-	hours, _ := strconv.ParseInt(timeLine[:2], 10, 64)
-	minutes, _ := strconv.ParseInt(timeLine[2:4], 10, 64)
-	seconds, _ := strconv.ParseInt(timeLine[4:], 10, 64)
-
-	datetimeStart := time.Date(
-		int(year), time.Month(month), int(day), 
-		int(hours), int(minutes), int(seconds), 0, time.UTC)
-
+	datetimeStart, err := getDatetimeStartSigma(datetimeSrc[0], datetimeSrc[1])
+	if err != nil {
+		return FileHeader{}, err
+	}
 	
 	integerPart, _ := strconv.ParseFloat(longitudeSrc[:3], 64)
 	decimalPart, _ := strconv.ParseFloat(longitudeSrc[3:len(longitudeSrc) - 1], 64)
@@ -224,7 +212,8 @@ func ReadSigmaHeader(path string) FileHeader {
 	integerPart, _ = strconv.ParseFloat(latitudeSrc[:2], 64)
 	decimalPart, _ = strconv.ParseFloat(latitudeSrc[2:len(latitudeSrc) - 1], 64)
 	latitude := truncate(integerPart + decimalPart / 60, 5)
-	return FileHeader{channelsCount, frequency, datetimeStart, longitude, latitude}
+
+	return FileHeader{channelsCount, frequency, datetimeStart, longitude, latitude}, nil
 }
 
 
@@ -284,7 +273,11 @@ func (binFile BinaryFile) fileHeader() (FileHeader, error) {
 	case BAIKAL8_FMT:
 		return ReadBaikal8Header(binFile.Path), nil
 	case SIGMA_FMT:
-		return ReadSigmaHeader(binFile.Path), nil
+		header, err := ReadSigmaHeader(binFile.Path)
+		if err != nil {
+			return FileHeader{}, err
+		}
+		return header, nil
 	default:
 		return FileHeader{}, errors.New("Unknown format type")
 	}
