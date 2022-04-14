@@ -107,6 +107,51 @@ func getDatetimeStartBaikal7(timeBegin uint64) time.Time {
 }
 
 
+func getDatetimeStartSigma(dateNum int32, timeNum int32) (time.Time, error) {
+	dateLine := strconv.FormatInt(int64(dateNum), 10)
+	if len(dateLine) != 6 {
+		return time.Time{}, errors.New("Invalid date in header")
+	}
+
+	year, _ := strconv.ParseInt(dateLine[:2], 10, 64)
+	year += 2000
+
+	month, _ := strconv.ParseInt(dateLine[2:4], 10, 64)
+	if month < 1 || month > 12 {
+		return time.Time{}, errors.New("Invalid month in header")
+	}
+
+	day, _ := strconv.ParseInt(dateLine[4:], 10, 64)
+
+	firstMonthDay := time.Date(int(year), time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+	lastMonthDay := firstMonthDay.AddDate(0, 1, 0).Add(-time.Nanosecond)
+	if day < 1 || int(day) > lastMonthDay.Day() {
+		return time.Time{}, errors.New("Invalid day in header")
+	}
+
+	timeLine := fmt.Sprintf("%06d", int64(timeNum))
+	hours, _ := strconv.ParseInt(timeLine[:2], 10, 64)
+	if hours > 23 {
+		return time.Time{}, errors.New("Invalid hours in header")
+	}
+
+	minutes, _ := strconv.ParseInt(timeLine[2:4], 10, 64)
+	if minutes > 59 {
+		return time.Time{}, errors.New("Invalid minutes in header")
+	}
+
+	seconds, _ := strconv.ParseInt(timeLine[4:], 10, 64)
+	if seconds > 59 {
+		return time.Time{}, errors.New("Invalid seconds in header")
+	}
+
+	datetimeStart := time.Date(
+		int(year), time.Month(month), int(day), 
+		int(hours), int(minutes), int(seconds), 0, time.UTC)
+	return datetimeStart, nil
+}
+
+
 func ReadBaikal7Header(path string) FileHeader {
 	file, _ := os.Open(path)
 	defer file.Close()
