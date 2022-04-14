@@ -13,12 +13,17 @@ import (
 )
 
 
+type Coordinate struct {
+	longitude float64
+	latitude float64
+}
+
+
 type FileHeader struct {
 	channelsCount uint16
 	frequency uint16
 	datetimeStart time.Time
-	longitude float64
-	latitude float64
+	coordinate Coordinate
 }
 
 
@@ -163,7 +168,7 @@ func ReadBaikal7Header(path string) FileHeader {
 	longitude, latitude := truncate(srcCoords[1], 5), truncate(srcCoords[0], 5)
 	timeBegin := LongType{file, 104, 1}.convertToNumber()
 	datetimeStart := getDatetimeStartBaikal7(timeBegin)
-	return FileHeader{channelsCount, frequency, datetimeStart, longitude, latitude} 
+	return FileHeader{channelsCount, frequency, datetimeStart, Coordinate{longitude, latitude}} 
 }
 
 
@@ -187,7 +192,7 @@ func ReadBaikal8Header(path string) FileHeader {
 	
 	srcCoords := DoubleType{file, 72, 2}.convertToArray()
 	longitude, latitude := truncate(srcCoords[0], 5), truncate(srcCoords[1], 5)
-	return FileHeader{channelsCount, frequency, datetimeStart, longitude, latitude} 
+	return FileHeader{channelsCount, frequency, datetimeStart, Coordinate{longitude, latitude}} 
 }
 
 
