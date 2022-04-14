@@ -206,7 +206,7 @@ func ReadBaikal7Header(path string) FileHeader {
 	frequency := UnsignedShortType{file, 22, 1}.convertToNumber()
 
 	srcCoords := DoubleType{file, 72, 2}.convertToArray()
-	longitude, latitude := truncate(srcCoords[1], 5), truncate(srcCoords[0], 5)
+	latitude, longitude := truncate(srcCoords[0], 5), truncate(srcCoords[1], 5)
 	timeBegin := LongType{file, 104, 1}.convertToNumber()
 	datetimeStart := getDatetimeStartBaikal7(timeBegin)
 	return FileHeader{channelsCount, frequency, datetimeStart, Coordinate{longitude, latitude}} 
@@ -232,7 +232,7 @@ func ReadBaikal8Header(path string) FileHeader {
 	datetimeStart = datetimeStart.Add(time.Nanosecond * time.Duration(nanoseconds))
 	
 	srcCoords := DoubleType{file, 72, 2}.convertToArray()
-	longitude, latitude := truncate(srcCoords[0], 5), truncate(srcCoords[1], 5)
+	latitude, longitude := truncate(srcCoords[0], 5), truncate(srcCoords[1], 5)
 	return FileHeader{channelsCount, frequency, datetimeStart, Coordinate{longitude, latitude}} 
 }
 
@@ -244,6 +244,10 @@ func ReadSigmaHeader(path string) (FileHeader, error) {
 	channelsCount := UnsignedShortType{file, 12, 1}.convertToNumber()
 	frequency := UnsignedShortType{file, 24, 1}.convertToNumber()
 	latitudeSrc, longitudeSrc := CharType{file, 40, 8}.convert(), CharType{file, 48, 9}.convert()
+	coordinates, err := getCoordinatesSigma(longitudeSrc, latitudeSrc)
+	if err != nil {
+		return FileHeader{}, err
+	}
 
 	datetimeSrc := UnsignedIntType{file, 60, 2}.convertToArray()
 	datetimeStart, err := getDatetimeStartSigma(datetimeSrc[0], datetimeSrc[1])
@@ -251,15 +255,7 @@ func ReadSigmaHeader(path string) (FileHeader, error) {
 		return FileHeader{}, err
 	}
 	
-	integerPart, _ := strconv.ParseFloat(longitudeSrc[:3], 64)
-	decimalPart, _ := strconv.ParseFloat(longitudeSrc[3:len(longitudeSrc) - 1], 64)
-	longitude := truncate(integerPart + decimalPart / 60, 5)
-
-	integerPart, _ = strconv.ParseFloat(latitudeSrc[:2], 64)
-	decimalPart, _ = strconv.ParseFloat(latitudeSrc[2:len(latitudeSrc) - 1], 64)
-	latitude := truncate(integerPart + decimalPart / 60, 5)
-
-	return FileHeader{channelsCount, frequency, datetimeStart, Coordinate{longitude, latitude}}, nil
+	return FileHeader{channelsCount, frequency, datetimeStart, coordinates}, nil
 }
 
 
