@@ -17,8 +17,8 @@ func readBinary(file *os.File, bytesCount int, skippingBytes int) []byte {
 
 type CharType struct {
 	filePointer *os.File
-	skippingBytes int
-	elementsCount int
+	skippingBytes uint16
+	elementsCount uint16
 }
 
 func (dataType CharType) byteSize() int {
@@ -35,8 +35,8 @@ func (dataType CharType) convert() string {
 
 type UnsignedShortType struct {
 	filePointer *os.File
-	skippingBytes int
-	elementsCount int	
+	skippingBytes uint16
+	elementsCount uint16	
 }
 
 func (dataType UnsignedShortType) byteSize() int {
@@ -66,8 +66,8 @@ func (dataType UnsignedShortType) convertToArray() []uint16 {
 
 type UnsignedIntType struct {
 	filePointer *os.File
-	skippingBytes int
-	elementsCount int
+	skippingBytes uint16
+	elementsCount uint16
 }
 
 func (dataType UnsignedIntType) byteSize() int {
@@ -97,8 +97,8 @@ func (dataType UnsignedIntType) convertToArray() []int32 {
 
 type DoubleType struct {
 	filePointer *os.File
-	skippingBytes int
-	elementsCount int
+	skippingBytes uint16
+	elementsCount uint16
 }
 
 func (dataType DoubleType) byteSize() int {
@@ -128,8 +128,8 @@ func (dataType DoubleType) convertToArray() []float64 {
 
 type LongType struct {
 	filePointer *os.File
-	skippingBytes int
-	elementsCount int
+	skippingBytes uint16
+	elementsCount uint16
 }
 
 func (dataType LongType) byteSize() int {
