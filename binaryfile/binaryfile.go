@@ -283,7 +283,7 @@ type BinaryFile struct {
 
 func (binFile BinaryFile) fileExtension() (string, error) {
 	if len(binFile.Path) == 0 {
-		return "", errors.New("Empty file path")
+		return "", BadFilePath{message: "Empty file path"}
 	}
 	splitPath := strings.Split(binFile.Path, ".")
 	return splitPath[len(splitPath) - 1], nil
@@ -300,7 +300,7 @@ func (binFile BinaryFile) formatType() (string, error) {
 			return fileFormat, nil
 		}
 	}
-	return "", errors.New("Invalid file format")
+	return "", BadFilePath{message: "Invalid file format"}
 }
 
 func (binFile BinaryFile) fileHeader() (FileHeader, error) {
@@ -321,7 +321,7 @@ func (binFile BinaryFile) fileHeader() (FileHeader, error) {
 		}
 		return header, nil
 	default:
-		return FileHeader{}, errors.New("Unknown format type")
+		return defaultValue, BadFilePath{message: "Unknown format type"}
 	}
 }
 
@@ -341,13 +341,13 @@ func (binFile BinaryFile) GetResampleFrequency() (uint16, error) {
 
 	switch freq := binFile.ResampleFrequency; {
 	case freq < 0:
-		return 0, errors.New("Invalid resample frequency value")
+		return 0, InvalidResampleFrequency{message: fmt.Sprint(freq)}
 	case freq == 0:
 		return originFrequency, nil
 	case originFrequency % freq == 0:
 		return freq, nil
 	default:
-		return 0, errors.New("Invalid resample frequency value")
+		return 0, InvalidResampleFrequency{message: fmt.Sprint(freq)}
 	}
 }
 
