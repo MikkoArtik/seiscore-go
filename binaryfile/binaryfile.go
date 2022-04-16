@@ -75,8 +75,8 @@ const SIGMA_SECONDS_OFFSET = 2
 const COMPONENTS_ORDER = "ZXY"
 
 
-func truncate(num float64, precision float64) float64 {
-	return math.Round(num * math.Pow(10, precision)) / math.Pow(10, precision)
+func truncate(num float64, precision uint8) float64 {
+	return math.Round(num * math.Pow(10, float64(precision))) / math.Pow(10, float64(precision))
 }
 
 
