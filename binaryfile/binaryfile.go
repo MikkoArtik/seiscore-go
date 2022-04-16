@@ -187,7 +187,7 @@ func getCoordinatesSigma(longitudeLine string, latitudeLine string) (Coordinate,
 }
 
 
-func ReadBaikal7Header(path string) FileHeader {
+func ReadBaikal7Header(path string) (FileHeader, error) {
 	file, _ := os.Open(path)
 	defer file.Close()
 
@@ -211,7 +211,7 @@ func ReadBaikal7Header(path string) FileHeader {
 }
 
 
-func ReadBaikal8Header(path string) FileHeader {
+func ReadBaikal8Header(path string) (FileHeader, error) {
 	file, _ := os.Open(path)
 	defer file.Close()
 
