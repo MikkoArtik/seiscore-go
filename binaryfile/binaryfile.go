@@ -110,16 +110,7 @@ func getDatetimeStartBaikal7(timeBegin uint64) time.Time {
 }
 
 
-type BadHeaderData struct {
-	message string
-}
-
-func (customError BadHeaderData) Error() string {
-	return fmt.Sprintf("BadHeaderData: %s", customError.message)
-}
-
-
-func getDatetimeStartSigma(dateNum int32, timeNum int32) (time.Time, error) {
+func getDatetimeStartSigma(dateNum uint32, timeNum uint32) (time.Time, error) {
 	dateLine := strconv.FormatInt(int64(dateNum), 10)
 	if len(dateLine) != 6 {
 		return time.Time{}, BadHeaderData{"Invalid date in header"}
