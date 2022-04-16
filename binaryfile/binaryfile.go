@@ -20,7 +20,6 @@ type Coordinate struct {
 
 
 type FileHeader struct {
-	channelsCount uint16
 	frequency uint16
 	datetimeStart time.Time
 	coordinate Coordinate
@@ -203,13 +202,22 @@ func ReadBaikal7Header(path string) FileHeader {
 	defer file.Close()
 
 	channelsCount := UnsignedShortType{file, 0, 1}.convertToNumber()
+	if int(channelsCount) != len(COMPONENTS_ORDER) {
+		return FileHeader{}, BadHeaderData{message: "Invalid channels count"}
+	}
+
 	frequency := UnsignedShortType{file, 22, 1}.convertToNumber()
 
 	srcCoords := DoubleType{file, 72, 2}.convertToArray()
 	latitude, longitude := truncate(srcCoords[0], 5), truncate(srcCoords[1], 5)
 	timeBegin := LongType{file, 104, 1}.convertToNumber()
 	datetimeStart := getDatetimeStartBaikal7(timeBegin)
-	return FileHeader{channelsCount, frequency, datetimeStart, Coordinate{longitude, latitude}} 
+	return FileHeader{
+		frequency: frequency, 
+		datetimeStart: datetimeStart, 
+		coordinate: Coordinate{
+			Longitude: longitude, 
+			Latitude: latitude}}, nil
 }
 
 
@@ -218,6 +226,10 @@ func ReadBaikal8Header(path string) FileHeader {
 	defer file.Close()
 
 	channelsCount := UnsignedShortType{file, 0, 1}.convertToNumber()
+	if int(channelsCount) != len(COMPONENTS_ORDER) {
+		return FileHeader{}, BadHeaderData{message: "Invalid channels count"}
+	}
+
 	dateSrc := UnsignedShortType{file, 6, 3}.convertToArray()
 
 	srcVals := DoubleType{file, 48, 2}.convertToArray()
@@ -233,7 +245,12 @@ func ReadBaikal8Header(path string) FileHeader {
 	
 	srcCoords := DoubleType{file, 72, 2}.convertToArray()
 	latitude, longitude := truncate(srcCoords[0], 5), truncate(srcCoords[1], 5)
-	return FileHeader{channelsCount, frequency, datetimeStart, Coordinate{longitude, latitude}} 
+	return FileHeader{
+		frequency: frequency, 
+		datetimeStart: datetimeStart, 
+		coordinate: Coordinate{
+			Longitude: longitude, 
+			Latitude: latitude}}, nil 
 }
 
 
@@ -242,6 +259,10 @@ func ReadSigmaHeader(path string) (FileHeader, error) {
 	defer file.Close()
 
 	channelsCount := UnsignedShortType{file, 12, 1}.convertToNumber()
+	if int(channelsCount) != len(COMPONENTS_ORDER) {
+		return FileHeader{}, BadHeaderData{message: "Invalid channels count"}
+	}
+
 	frequency := UnsignedShortType{file, 24, 1}.convertToNumber()
 	latitudeSrc, longitudeSrc := CharType{file, 40, 8}.convert(), CharType{file, 48, 9}.convert()
 	coordinates, err := getCoordinatesSigma(longitudeSrc, latitudeSrc)
@@ -255,7 +276,10 @@ func ReadSigmaHeader(path string) (FileHeader, error) {
 		return FileHeader{}, err
 	}
 	
-	return FileHeader{channelsCount, frequency, datetimeStart, coordinates}, nil
+	return FileHeader{
+		frequency: frequency, 
+		datetimeStart: datetimeStart, 
+		coordinate: coordinates} , nil
 }
 
 
