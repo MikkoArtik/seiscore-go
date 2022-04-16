@@ -80,16 +80,16 @@ func (dataType UnsignedIntType) getBytes() []byte {
 		dataType.skippingBytes)
 }
 
-func (dataType UnsignedIntType) convertToNumber() int32 {
+func (dataType UnsignedIntType) convertToNumber() uint32 {
 	buffer := bytes.NewBuffer(dataType.getBytes())
-	var result int32
+	var result uint32
 	binary.Read(buffer, binary.LittleEndian, &result)
 	return result
 }
 
-func (dataType UnsignedIntType) convertToArray() []int32 {
+func (dataType UnsignedIntType) convertToArray() []uint32 {
 	buffer := bytes.NewBuffer(dataType.getBytes())
-	result := make([]int32, dataType.elementsCount)
+	result := make([]uint32, dataType.elementsCount)
 	binary.Read(buffer, binary.LittleEndian, &result)
 	return result
 }
