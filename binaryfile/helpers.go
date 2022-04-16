@@ -21,7 +21,7 @@ type CharType struct {
 	elementsCount uint16
 }
 
-func (dataType CharType) byteSize() int {
+func (dataType CharType) ByteSize() uint8 {
 	return 1
 }
 
@@ -39,13 +39,13 @@ type UnsignedShortType struct {
 	elementsCount uint16	
 }
 
-func (dataType UnsignedShortType) byteSize() int {
+func (dataType UnsignedShortType) ByteSize() uint8 {
 	return 2
 }
 
 func (dataType UnsignedShortType) getBytes() []byte {
 	return readBinary(
-		dataType.filePointer, dataType.byteSize() * dataType.elementsCount, 
+		dataType.filePointer, uint16(dataType.ByteSize()) * dataType.elementsCount, 
 		dataType.skippingBytes)
 }
 
@@ -70,13 +70,13 @@ type UnsignedIntType struct {
 	elementsCount uint16
 }
 
-func (dataType UnsignedIntType) byteSize() int {
+func (dataType UnsignedIntType) ByteSize() uint8 {
 	return 4
 }
 
 func (dataType UnsignedIntType) getBytes() []byte {
 	return readBinary(
-		dataType.filePointer, dataType.byteSize() * dataType.elementsCount, 
+		dataType.filePointer, uint16(dataType.ByteSize()) * dataType.elementsCount, 
 		dataType.skippingBytes)
 }
 
@@ -101,13 +101,13 @@ type DoubleType struct {
 	elementsCount uint16
 }
 
-func (dataType DoubleType) byteSize() int {
+func (dataType DoubleType) ByteSize() uint8 {
 	return 8
 }
 
 func (dataType DoubleType) getBytes() []byte {
 	return readBinary(
-		dataType.filePointer, dataType.byteSize() * dataType.elementsCount, 
+		dataType.filePointer, uint16(dataType.ByteSize()) * dataType.elementsCount, 
 		dataType.skippingBytes)
 }
 
@@ -132,13 +132,13 @@ type LongType struct {
 	elementsCount uint16
 }
 
-func (dataType LongType) byteSize() int {
+func (dataType LongType) ByteSize() uint8 {
 	return 8
 }
 
 func (dataType LongType) getBytes() []byte {
 	return readBinary(
-		dataType.filePointer, dataType.byteSize() * dataType.elementsCount, 
+		dataType.filePointer, uint16(dataType.ByteSize()) * dataType.elementsCount, 
 		dataType.skippingBytes)
 }
 
