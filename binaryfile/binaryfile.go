@@ -318,20 +318,29 @@ func (binFile BinaryFile) FormatType() (string, error) {
 }
 
 func (binFile BinaryFile) fileHeader() (FileHeader, error) {
+	defaultValue := FileHeader{}
 	formatType, err := binFile.FormatType()
 	if err != nil {
-		return FileHeader{}, err
+		return defaultValue, err
 	}
 
 	switch formatType {
 	case BAIKAL7_FMT:
-		return ReadBaikal7Header(binFile.Path), nil
+		header, err := ReadBaikal7Header(binFile.Path)
+		if err != nil {
+			return defaultValue, err
+		}
+		return header, nil
 	case BAIKAL8_FMT:
-		return ReadBaikal8Header(binFile.Path), nil
+		header, err := ReadBaikal8Header(binFile.Path)
+		if err != nil {
+			return defaultValue, err
+		}
+		return header, nil
 	case SIGMA_FMT:
 		header, err := ReadSigmaHeader(binFile.Path)
 		if err != nil {
-			return FileHeader{}, err
+			return defaultValue, err
 		}
 		return header, nil
 	default:
