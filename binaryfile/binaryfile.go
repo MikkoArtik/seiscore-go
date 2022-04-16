@@ -14,8 +14,8 @@ import (
 
 
 type Coordinate struct {
-	longitude float64
-	latitude float64
+	Longitude float64
+	Latitude float64
 }
 
 
