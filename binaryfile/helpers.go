@@ -8,7 +8,7 @@ import (
 )
 
 
-func readBinary(file *os.File, bytesCount int, skippingBytes int) []byte {
+func readBinary(file *os.File, bytesCount uint16, skippingBytes uint16) []byte {
 	bytes := make([]byte, bytesCount)
 	file.ReadAt(bytes, int64(skippingBytes))
 	return bytes
@@ -27,7 +27,7 @@ func (dataType CharType) byteSize() int {
 
 func (dataType CharType) convert() string {
 	bytesVal := readBinary(
-		dataType.filePointer, dataType.byteSize() * dataType.elementsCount, 
+		dataType.filePointer, uint16(dataType.ByteSize()) * dataType.elementsCount, 
 		dataType.skippingBytes)
 	return string(bytesVal)
 }
