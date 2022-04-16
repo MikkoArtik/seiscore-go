@@ -295,7 +295,7 @@ type BinaryFile struct {
 	IsUseAvgValues bool
 }
 
-func (binFile BinaryFile) fileExtension() (string, error) {
+func (binFile BinaryFile) FileExtension() (string, error) {
 	if len(binFile.Path) == 0 {
 		return "", BadFilePath{message: "Empty file path"}
 	}
@@ -303,8 +303,8 @@ func (binFile BinaryFile) fileExtension() (string, error) {
 	return splitPath[len(splitPath) - 1], nil
 }
 
-func (binFile BinaryFile) formatType() (string, error) {
-	currentExtension, err := binFile.fileExtension()
+func (binFile BinaryFile) FormatType() (string, error) {
+	currentExtension, err := binFile.FileExtension()
 	if err != nil {
 		return "", err
 	}
@@ -318,7 +318,7 @@ func (binFile BinaryFile) formatType() (string, error) {
 }
 
 func (binFile BinaryFile) fileHeader() (FileHeader, error) {
-	formatType, err := binFile.formatType()
+	formatType, err := binFile.FormatType()
 	if err != nil {
 		return FileHeader{}, err
 	}
