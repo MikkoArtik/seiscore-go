@@ -38,11 +38,10 @@ func formatDuration(days int, hours int, minutes int, seconds int) string {
 type FileInfo struct {
 	path string
 	formatType string
-	frequency int64
+	frequency uint16
 	timeStart time.Time
 	timeStop time.Time
-	longitude float64
-	latitude float64
+	coordinate Coordinate
 }
 
 func (fileInfo FileInfo) name() string {
