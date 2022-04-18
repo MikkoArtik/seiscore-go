@@ -519,3 +519,37 @@ func (binFile BinaryFile) resampleParameter() (uint16, error) {
 	header, _  := binFile.fileHeader()
 	return header.frequency / resampleFrequency, nil
 }
+
+func (binFile BinaryFile) getIndexesInterval(datetimeStart time.Time, datetimeStop time.Time) ([2]uint64, error) {
+	defaultValue := [2]uint64{0, 0}
+	_, err := binFile.IsGoodReadDatetimeStart(datetimeStart)
+	if err != nil {
+		return defaultValue, err
+	}
+
+	_, err = binFile.IsGoodReadDatetimeStop(datetimeStop)
+	if err != nil {
+		return defaultValue, err
+	}
+
+	resampleParameter, err := binFile.resampleParameter()
+	if err != nil {
+		return defaultValue, err
+	}
+
+	header, _ := binFile.fileHeader()
+	originFrequency := header.frequency
+
+	recordingDatetimeStart, _ := binFile.DatetimeStart()
+	
+	secondsDiff := datetimeStart.Sub(recordingDatetimeStart).Seconds()
+	startIndex := uint64(math.Round(secondsDiff * float64(originFrequency)))
+
+	secondsDiff = datetimeStop.Sub(recordingDatetimeStart).Seconds()
+	stopIndex := uint64(math.Round(secondsDiff * float64(originFrequency)))
+
+	signalLength := (stopIndex - startIndex) / uint64(resampleParameter)
+	stopIndex = startIndex + signalLength
+
+	return [2]uint64{startIndex, stopIndex}, nil
+}
