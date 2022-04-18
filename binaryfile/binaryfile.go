@@ -520,6 +520,15 @@ func (binFile BinaryFile) resampleParameter() (uint16, error) {
 	return header.frequency / resampleFrequency, nil
 }
 
+func (binFile BinaryFile) componentIndex(component rune) (uint8, error) {
+	for i, sourceComponent := range COMPONENTS_ORDER {
+		if sourceComponent == component {
+			return uint8(i), nil
+		}
+	}
+	return 0, UnknownComponentName{message: string(component)}
+}
+
 func (binFile BinaryFile) getIndexesInterval(datetimeStart time.Time, datetimeStop time.Time) ([2]uint64, error) {
 	defaultValue := [2]uint64{0, 0}
 	_, err := binFile.IsGoodReadDatetimeStart(datetimeStart)
