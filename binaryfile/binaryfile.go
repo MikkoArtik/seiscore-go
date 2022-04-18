@@ -433,3 +433,32 @@ func (binFile BinaryFile) DatetimeStop() (time.Time, error) {
 	return datetimeStart.Add(time.Second * time.Duration(secondsDuration)), nil
 }
 
+func (binFile BinaryFile) FileInfo() (FileInfo, error) {
+	defaultValue := FileInfo{}
+
+	formatType, err := binFile.FormatType()
+	if err != nil {
+		return defaultValue, err
+	}
+
+	path := binFile.Path
+
+	header, err := binFile.fileHeader()
+	if err != nil {
+		return defaultValue, err
+	}
+	timeStart, _ := binFile.DatetimeStart()
+	timeStop, err := binFile.DatetimeStop()
+	if err != nil {
+		return defaultValue, err
+	}
+	
+	return FileInfo{
+		path: path, 
+		formatType: formatType, 
+		frequency: header.frequency, 
+		timeStart: timeStart, 
+		timeStop: timeStop, coordinate: header.coordinate}, nil
+	
+}
+
