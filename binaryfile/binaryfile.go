@@ -462,3 +462,50 @@ func (binFile BinaryFile) FileInfo() (FileInfo, error) {
 	
 }
 
+func (binFile BinaryFile) IsGoodReadDatetimeStart(datetime time.Time) (bool, error) {
+	datetimeStart, err := binFile.DatetimeStart()
+	if err != nil {
+		return false, err
+	}
+
+	datetimeStop, err := binFile.DatetimeStop()
+	if err != nil {
+		return false, err
+	}
+
+	secondsDiff := datetime.Sub(datetimeStart).Seconds()
+	if secondsDiff < 0 {
+		return false, InvalidDatetimeValue{message: "Reading time start is less than recording time start"}
+	}
+
+	secondsDiff = datetimeStop.Sub(datetime).Seconds()
+	if secondsDiff <= 0 {
+		return false, InvalidDatetimeValue{message: "Reading time start is more than recording time stop"}
+	}
+
+	return true, nil
+}
+
+func (binFile BinaryFile) IsGoodReadDatetimeStop(datetime time.Time) (bool, error) {
+	datetimeStart, err := binFile.DatetimeStart()
+	if err != nil {
+		return false, err
+	}
+
+	datetimeStop, err := binFile.DatetimeStop()
+	if err != nil {
+		return false, err
+	}
+
+	secondsDiff := datetime.Sub(datetimeStart).Seconds()
+	if secondsDiff <= 0 {
+		return false, InvalidDatetimeValue{message: "Reading time stop is less than recording time start"}
+	}
+
+	secondsDiff = datetimeStop.Sub(datetime).Seconds()
+	if secondsDiff < 0 {
+		return false, InvalidDatetimeValue{message: "Reading time stop is more than recording time stop"}
+	}
+
+	return true, nil
+}
