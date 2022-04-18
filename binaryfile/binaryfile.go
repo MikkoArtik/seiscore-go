@@ -366,3 +366,6 @@ func (binFile BinaryFile) GetResampleFrequency() (uint16, error) {
 	}
 }
 
+func (binFile BinaryFile) headerMemorySize() uint16 {
+	return uint16(120 + 72 * len(COMPONENTS_ORDER))
+}
