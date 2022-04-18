@@ -36,16 +36,16 @@ func formatDuration(days int, hours int, minutes int, seconds int) string {
 
 
 type FileInfo struct {
-	path string
-	formatType string
-	frequency uint16
-	timeStart time.Time
-	timeStop time.Time
-	coordinate Coordinate
+	Path string
+	FormatType string
+	Frequency uint16
+	TimeStart time.Time
+	TimeStop time.Time
+	Coordinate Coordinate
 }
 
 func (fileInfo FileInfo) name() string {
-	return path.Base(fileInfo.path)
+	return path.Base(fileInfo.Path)
 }
 
 func (fileInfo FileInfo) secondsDuration() float64 {
@@ -53,7 +53,7 @@ func (fileInfo FileInfo) secondsDuration() float64 {
 }
 
 func (fileInfo FileInfo) formattedDuration() string {
-	diff := fileInfo.timeStop.Sub(fileInfo.timeStart)
+	diff := fileInfo.TimeStop.Sub(fileInfo.TimeStart)
 	daysDiff := int(diff.Hours() / 24)
 	hoursDiff := int(int(diff.Hours()) % 24)
 	minutesDiff := int(int(diff.Minutes()) % 60)
@@ -454,11 +454,11 @@ func (binFile BinaryFile) FileInfo() (FileInfo, error) {
 	}
 	
 	return FileInfo{
-		path: path, 
-		formatType: formatType, 
-		frequency: header.frequency, 
-		timeStart: timeStart, 
-		timeStop: timeStop, coordinate: header.coordinate}, nil
+		Path: path, 
+		FormatType: formatType, 
+		Frequency: header.frequency, 
+		TimeStart: timeStart, 
+		TimeStop: timeStop, Coordinate: header.coordinate}, nil
 	
 }
 
