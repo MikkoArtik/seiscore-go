@@ -509,3 +509,13 @@ func (binFile BinaryFile) IsGoodReadDatetimeStop(datetime time.Time) (bool, erro
 
 	return true, nil
 }
+
+func (binFile BinaryFile) resampleParameter() (uint16, error) {
+	resampleFrequency, err := binFile.GetResampleFrequency()
+	if err != nil {
+		return 0, err
+	}
+
+	header, _  := binFile.fileHeader()
+	return header.frequency / resampleFrequency, nil
+}
