@@ -369,3 +369,17 @@ func (binFile BinaryFile) GetResampleFrequency() (uint16, error) {
 func (binFile BinaryFile) headerMemorySize() uint16 {
 	return uint16(120 + 72 * len(COMPONENTS_ORDER))
 }
+
+func (binFile BinaryFile) discreteCount() (uint64, error) {
+	info, err := os.Stat(binFile.Path)
+	if err != nil {
+		return 0, err
+	}
+
+	headerSize := binFile.headerMemorySize()
+
+	size := info.Size()
+	discreteCount := (uint64(size) - uint64(headerSize)) / (uint64(len(COMPONENTS_ORDER)) * uint64(UnsignedIntType{}.ByteSize()))
+	return discreteCount, nil
+}
+
