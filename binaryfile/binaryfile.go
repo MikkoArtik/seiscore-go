@@ -383,3 +383,21 @@ func (binFile BinaryFile) discreteCount() (uint64, error) {
 	return discreteCount, nil
 }
 
+func (binFile BinaryFile) secondsDuration() (float64, error) {
+	header, err := binFile.fileHeader()
+	if err != nil {
+		return 0, err
+	}
+
+	discreteCount, err := binFile.discreteCount()
+	if err != nil {
+		return 0, err
+	}
+
+	frequency := header.frequency
+	accuracy := uint8(math.Log10(float64(frequency)))
+
+	deltaSeconds := truncate(float64(discreteCount) / float64(frequency), accuracy)
+	return deltaSeconds, nil
+}
+
