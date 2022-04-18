@@ -348,16 +348,8 @@ func (binFile BinaryFile) fileHeader() (FileHeader, error) {
 	}
 }
 
-func (binFile BinaryFile) originFrequency() (uint16, error) {
-	fileHeader, err := binFile.fileHeader()
-	if err != nil {
-		return 0, errors.New("Bad file header format")
-	}
-	return fileHeader.frequency, nil
-}
-
 func (binFile BinaryFile) GetResampleFrequency() (uint16, error) {
-	originFrequency, err := binFile.originFrequency()
+	header, err := binFile.fileHeader()
 	if err != nil {
 		return 0, err
 	}
@@ -366,8 +358,8 @@ func (binFile BinaryFile) GetResampleFrequency() (uint16, error) {
 	case freq < 0:
 		return 0, InvalidResampleFrequency{message: fmt.Sprint(freq)}
 	case freq == 0:
-		return originFrequency, nil
-	case originFrequency % freq == 0:
+		return header.frequency, nil
+	case header.frequency % freq == 0:
 		return freq, nil
 	default:
 		return 0, InvalidResampleFrequency{message: fmt.Sprint(freq)}
