@@ -401,3 +401,35 @@ func (binFile BinaryFile) secondsDuration() (float64, error) {
 	return deltaSeconds, nil
 }
 
+func (binFile BinaryFile) DatetimeStart() (time.Time, error) {
+	formatType, err := binFile.FormatType()
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	header, err := binFile.fileHeader()
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	offset := 0
+	if formatType == SIGMA_FMT {
+		offset = SIGMA_SECONDS_OFFSET
+	}
+	return header.datetimeStart.Add(time.Second * time.Duration(offset)), nil
+}
+
+func (binFile BinaryFile) DatetimeStop() (time.Time, error) {
+	datetimeStart, err := binFile.DatetimeStart()
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	secondsDuration, err := binFile.secondsDuration()
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return datetimeStart.Add(time.Second * time.Duration(secondsDuration)), nil
+}
+
