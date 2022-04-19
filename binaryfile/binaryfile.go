@@ -275,22 +275,6 @@ func ReadSigmaHeader(path string) (FileHeader, error) {
 }
 
 
-func resampling(signal []int, resample_parameter int) []int {
-	resample_arr_size := len(signal) / resample_parameter
-	var result []int
-	for i := 0; i < resample_arr_size; i++ {
-		sum_val := 0
-		for j := 0; j < resample_parameter; j++ {
-			index := i * resample_parameter + j
-			sum_val += signal[index]
-		}
-		value := sum_val / resample_parameter
-		result = append(result, value)
-	}
-	return result
-}
-
-
 type BinaryFile struct {
 	Path string
 	ResampleFrequency uint16
