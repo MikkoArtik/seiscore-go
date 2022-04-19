@@ -549,3 +549,82 @@ func (binFile BinaryFile) getIndexesInterval(datetimeStart time.Time, datetimeSt
 
 	return [2]uint64{startIndex, stopIndex}, nil
 }
+
+func (binFile BinaryFile) ReadSignal(timeStart time.Time, timeStop time.Time, component rune) ([]int32, error) {
+	signal := []int32{}
+	indexes, err := binFile.getIndexesInterval(timeStart, timeStop)
+	if err != nil {
+		return signal, err
+	}
+
+	columnIndex, err := binFile.componentIndex(component)
+	if err != nil {
+		return signal, err
+	}
+
+	resampleParameter, err := binFile.resampleParameter()
+	if err != nil {
+		return signal, err
+	}
+
+	channelsCount := len(COMPONENTS_ORDER)
+	oneRecordBytesSize :=  4 * channelsCount
+
+	skippingBlock := int(indexes[0]) * oneRecordBytesSize
+	offsetSize := int(binFile.headerMemorySize()) + skippingBlock
+
+	signalBytesSize := int(indexes[1] - indexes[0]) * oneRecordBytesSize
+
+	file, _ := os.Open(binFile.Path)
+	defer file.Close()
+
+	file.Seek(int64(offsetSize), 0)
+
+	reader := bufio.NewReader(file)
+	buffer := make([]byte, BASE_MEMORY_BLOCK_SIZE)
+
+	readBytesCount := 0
+	partSignal := make([]int32, resampleParameter)
+	currentPosition := 0
+	for readBytesCount < signalBytesSize {
+		bytesCount, err := reader.Read(buffer[:cap(buffer)])
+		buffer = buffer[:bytesCount]
+		if bytesCount == 0 {
+			if err == nil {
+				continue
+			}
+
+			if err == io.EOF {
+				break
+			}
+			return []int32{}, BadSignalData{message: "Unexpected EOF"}
+		} else {
+			if err != nil {
+				return []int32{}, BadSignalData{message: "Unexpected EOF"}
+			}
+		}
+
+		readBytesCount += bytesCount
+
+		recordsCount := bytesCount / oneRecordBytesSize
+		componentMeasures := make([]int32, recordsCount * channelsCount)
+		convertBuffer := bytes.NewBuffer(buffer)
+		binary.Read(convertBuffer, binary.LittleEndian, &componentMeasures)
+
+		for i := 0; i < recordsCount; i++ {
+			index := 3 * i + int(columnIndex)
+			partSignal[currentPosition] = componentMeasures[index]
+			currentPosition++
+
+			if currentPosition == int(resampleParameter) {
+				currentPosition = 0
+				sumValue := 0
+				for j := 0; j < int(resampleParameter); j++ {
+					sumValue += int(partSignal[j])
+				}
+				signal = append(signal, int32(sumValue / int(resampleParameter)))
+			}
+		}	
+	}
+	return signal, nil
+}
