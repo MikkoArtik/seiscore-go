@@ -9,7 +9,10 @@ import (
 	"fmt"
 	"strconv"
 	"path"
-	"errors"
+	"encoding/binary"
+	"bytes"
+	"io"
+	"bufio"
 )
 
 
