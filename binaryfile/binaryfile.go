@@ -49,7 +49,7 @@ func (fileInfo FileInfo) name() string {
 }
 
 func (fileInfo FileInfo) secondsDuration() float64 {
-	return fileInfo.timeStop.Sub(fileInfo.timeStart).Seconds()
+	return fileInfo.TimeStop.Sub(fileInfo.TimeStart).Seconds()
 }
 
 func (fileInfo FileInfo) formattedDuration() string {
