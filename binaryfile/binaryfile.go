@@ -561,7 +561,7 @@ func (binFile BinaryFile) getIndexesInterval(datetimeStart time.Time, datetimeSt
 	stopIndex := uint64(math.Round(secondsDiff * float64(originFrequency)))
 
 	signalLength := (stopIndex - startIndex) / uint64(resampleParameter)
-	stopIndex = startIndex + signalLength
+	stopIndex = startIndex + signalLength * uint64(resampleParameter)
 
 	return [2]uint64{startIndex, stopIndex}, nil
 }
