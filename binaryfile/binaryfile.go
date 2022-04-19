@@ -62,17 +62,19 @@ func (fileInfo FileInfo) formattedDuration() string {
 }
 
 
-const BAIKAL7_FMT, BAIKAL8_FMT, SIGMA_FMT = "Baikal7", "Baikal8", "Sigma"
-const BAIKAL7_EXTENSION, BAIKAL8_EXTENSION, SIGMA_EXTENSION = "00", "xx", "bin"
+const (
+	BAIKAL7_FMT, BAIKAL8_FMT, SIGMA_FMT = "Baikal7", "Baikal8", "Sigma"
+	BAIKAL7_EXTENSION, BAIKAL8_EXTENSION, SIGMA_EXTENSION = "00", "xx", "bin"
+	SIGMA_SECONDS_OFFSET = 2
+	COMPONENTS_ORDER = "ZXY"
+	MEMORY_BLOCK_SIZE = 120000
+)
 
 var BINARY_FILE_FORMATS = map[string]string{
 	BAIKAL7_FMT: BAIKAL7_EXTENSION,
 	BAIKAL8_FMT: BAIKAL8_EXTENSION,
 	SIGMA_FMT: SIGMA_EXTENSION,
 }
-
-const SIGMA_SECONDS_OFFSET = 2
-const COMPONENTS_ORDER = "ZXY"
 
 
 func truncate(num float64, precision uint8) float64 {
