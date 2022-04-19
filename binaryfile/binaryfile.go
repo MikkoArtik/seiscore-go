@@ -430,7 +430,8 @@ func (binFile BinaryFile) DatetimeStop() (time.Time, error) {
 		return time.Time{}, err
 	}
 
-	return datetimeStart.Add(time.Second * time.Duration(secondsDuration)), nil
+	nanosecondsDuration := secondsDuration * 1e9
+	return datetimeStart.Add(time.Nanosecond * time.Duration(nanosecondsDuration)), nil
 }
 
 func (binFile BinaryFile) FileInfo() (FileInfo, error) {
