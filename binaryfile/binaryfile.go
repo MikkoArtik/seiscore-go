@@ -553,7 +553,7 @@ func (binFile BinaryFile) getIndexesInterval(datetimeStart time.Time, datetimeSt
 	return [2]uint64{startIndex, stopIndex}, nil
 }
 
-func (binFile BinaryFile) ReadSignal(timeStart time.Time, timeStop time.Time, component rune) ([]int32, error) {
+func (binFile BinaryFile) readSignal(timeStart time.Time, timeStop time.Time, component rune) ([]int32, error) {
 	signal := []int32{}
 	indexes, err := binFile.getIndexesInterval(timeStart, timeStop)
 	if err != nil {
