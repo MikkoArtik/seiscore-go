@@ -631,3 +631,27 @@ func (binFile BinaryFile) readSignal(timeStart time.Time, timeStop time.Time, co
 	}
 	return signal, nil
 }
+
+func (binFile BinaryFile) ReadSignal(timeStart time.Time, timeStop time.Time, component rune) ([]int32, error) {
+	signal, err := binFile.readSignal(timeStart, timeStop, component)
+	if err != nil {
+		return signal, nil
+	}
+
+	if !binFile.IsUseAvgValues {
+		return signal, nil
+	}
+
+	var totalSum int64
+	for i := 0; i < len(signal); i++ {
+		totalSum += int64(signal[i])
+	}
+
+	average := int32(totalSum / int64(len(signal)))
+
+	for i := 0; i < len(signal); i++ {
+		signal[i] -= average
+	}
+
+	return signal, nil
+}
